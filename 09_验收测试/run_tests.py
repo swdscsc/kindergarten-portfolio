@@ -5,7 +5,7 @@
 说明：MP4 成片当前作为本次对话独立文件交付；放入 03_宣传视频/成片 后会自动纳入检测。
 """
 from pathlib import Path
-import json, re, subprocess, sys, datetime
+import json, re, subprocess, sys, datetime, shutil
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,7 +98,7 @@ mp4s = sorted(mp4_dir.glob("*.mp4")) if mp4_dir.exists() else []
 if not mp4s:
     results.append({"case": "MP4 成片元数据", "status": "INFO", "detail": "成片由本次对话单独交付；如需纳入仓库测试，请将 3 个 MP4 放入 03_宣传视频/成片"})
 else:
-    ffprobe = subprocess.run(["bash", "-lc", "command -v ffprobe"], capture_output=True, text=True).stdout.strip()
+    ffprobe = shutil.which("ffprobe")
     if not ffprobe:
         results.append({"case": "MP4 成片元数据", "status": "INFO", "detail": "未安装 ffprobe，跳过视频元数据检查"})
     else:
