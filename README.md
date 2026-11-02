@@ -5,6 +5,8 @@
 ## 在线展示
 https://swdscsc.github.io/kindergarten-portfolio/
 
+**最新主视觉展示：** https://swdscsc.github.io/kindergarten-portfolio/visual/ （含原创 SVG 活动海报与视觉规范）
+
 ## 项目定位
 
 本仓库围绕幼儿园集团信息管理员的工作场景，展示园所宣传内容策划、中文公众号编辑、摄影与短视频流程、素材归档、信息化办公支持等能力。
