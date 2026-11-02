@@ -8,6 +8,7 @@ https://swdscsc.github.io/kindergarten-portfolio/
 **宣传设计与内容入口：**
 - 主视觉与海报：https://swdscsc.github.io/kindergarten-portfolio/visual/
 - 三篇原创公众号稿：https://swdscsc.github.io/kindergarten-portfolio/content/
+- 视频展示页：https://swdscsc.github.io/kindergarten-portfolio/video/
 - 视频制作说明与可复现脚本：`03_宣传视频/`
 
 **最新主视觉展示：** https://swdscsc.github.io/kindergarten-portfolio/visual/ （含原创 SVG 活动海报与视觉规范）
