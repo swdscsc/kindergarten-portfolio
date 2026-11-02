@@ -3,8 +3,20 @@ import os, subprocess
 
 # 原创动态图形视频生成器：三种视觉风格，共同主题，不使用真实人物影像。
 W, H, FPS, DURATION = 720, 1280, 24, 12
-FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
-REGULAR = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+def first_existing(paths):
+    for item in paths:
+        if os.path.isfile(item):
+            return item
+    return None
+
+FONT = first_existing([
+    "C:/Windows/Fonts/msyhbd.ttc", "C:/Windows/Fonts/simhei.ttf",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
+])
+REGULAR = first_existing([
+    "C:/Windows/Fonts/msyh.ttc", "C:/Windows/Fonts/simsun.ttc",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+])
 OUT = os.path.join(os.path.dirname(__file__), "成片")
 os.makedirs(OUT, exist_ok=True)
 
@@ -15,7 +27,8 @@ SCENES = [
 ]
 
 def ft(size, bold=True):
-    return ImageFont.truetype(FONT if bold else REGULAR, size)
+    path = FONT if bold else REGULAR
+    return ImageFont.truetype(path, size) if path else ImageFont.load_default()
 
 def centered(draw, text, y, f, color):
     box = draw.textbbox((0,0), text, font=f)
@@ -52,7 +65,7 @@ def render(style, scene, local):
         d.line((160,770,560,770),fill=(205,216,202),width=13)
         for i,x in enumerate((170,360,550),1):
             d.ellipse((x-48,722,x+48,818),fill=orange if i==2 else green)
-            centered(d,str(i),735,ft(42),cream) if i==2 else d.text((x-13,737),str(i),font=ft(42),fill=cream)
+            d.text((x-13,737),str(i),font=ft(42),fill=cream)
         centered(d,foot,1100,ft(18,False),muted)
     else:
         d.rectangle((0,0,W,18),fill=green)
