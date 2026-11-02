@@ -36,6 +36,10 @@ required = [
     "04_信息管理台账/活动影像采集与归档规范.md",
     "04_信息管理台账/公众号稿件审核与隐私核对表.md",
     "04_信息管理台账/月度信息工作交接清单.md",
+    "04_园务信息台/app.py",
+    "04_园务信息台/requirements.txt",
+    "04_园务信息台/README.md",
+    "04_园务信息台/smoke_test.py",
 ]
 missing = [x for x in required if not (ROOT / x).is_file()]
 add("核心交付文件", not missing, "缺失：" + (", ".join(missing) if missing else "全部存在（共 %d 项）" % len(required)))
@@ -67,6 +71,16 @@ if csv_path.is_file():
     except Exception as exc:
         ops_errors.append("信息故障报修登记模板.csv：" + str(exc))
 add("信息管理岗位模板", not ops_errors, "；".join(ops_errors) if ops_errors else "5/5 文件存在，CSV 表头与示例行列数一致")
+
+# 1B. Runnable Flask demo source
+demo_source = ROOT / "04_园务信息台/app.py"
+demo_errors = []
+if demo_source.is_file():
+    source = demo_source.read_text(encoding="utf-8")
+    for token in ("Flask(", "sqlite3", "def assets(", "def inspections(", "def tickets(", "def media(", "@app.get(\\"/health\\")"):
+        if token not in source:
+            demo_errors.append("app.py 缺少关键实现：" + token)
+add("园务信息台源码结构", not demo_errors, "；".join(demo_errors) if demo_errors else "Flask、SQLite、四个业务模块及健康检查路由均存在")
 
 # 2. SVG syntax and intrinsic dimensions
 svg_files = [
