@@ -31,9 +31,42 @@ required = [
     "05_公众号图文稿/原创推文01_安全小卫士平安伴成长.md",
     "05_公众号图文稿/原创推文02_秋日自然探索小课堂.md",
     "05_公众号图文稿/原创推文03_家园携手生活自理.md",
+    "04_信息管理台账/设备巡检记录模板.md",
+    "04_信息管理台账/信息故障报修登记模板.csv",
+    "04_信息管理台账/活动影像采集与归档规范.md",
+    "04_信息管理台账/公众号稿件审核与隐私核对表.md",
+    "04_信息管理台账/月度信息工作交接清单.md",
 ]
 missing = [x for x in required if not (ROOT / x).is_file()]
 add("核心交付文件", not missing, "缺失：" + (", ".join(missing) if missing else "全部存在（共 %d 项）" % len(required)))
+
+# 1A. Information administration templates
+ops_files = [
+    "04_信息管理台账/设备巡检记录模板.md",
+    "04_信息管理台账/信息故障报修登记模板.csv",
+    "04_信息管理台账/活动影像采集与归档规范.md",
+    "04_信息管理台账/公众号稿件审核与隐私核对表.md",
+    "04_信息管理台账/月度信息工作交接清单.md",
+]
+ops_errors = []
+for rel in ops_files:
+    try:
+        content = (ROOT / rel).read_text(encoding="utf-8-sig")
+        if len(content.strip()) < 80:
+            ops_errors.append(rel + "：内容过短")
+    except Exception as exc:
+        ops_errors.append(rel + "：" + str(exc))
+csv_path = ROOT / "04_信息管理台账/信息故障报修登记模板.csv"
+if csv_path.is_file():
+    try:
+        import csv
+        with csv_path.open(encoding="utf-8-sig", newline="") as fh:
+            rows = list(csv.reader(fh))
+        if len(rows) < 2 or len(rows[0]) != len(rows[1]):
+            ops_errors.append("信息故障报修登记模板.csv：表头与示例行列数不一致")
+    except Exception as exc:
+        ops_errors.append("信息故障报修登记模板.csv：" + str(exc))
+add("信息管理岗位模板", not ops_errors, "；".join(ops_errors) if ops_errors else "5/5 文件存在，CSV 表头与示例行列数一致")
 
 # 2. SVG syntax and intrinsic dimensions
 svg_files = [
