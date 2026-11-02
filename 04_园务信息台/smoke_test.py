@@ -12,7 +12,7 @@ def run():
         campus.app.config.update(TESTING=True)
         client = campus.app.test_client()
 
-        for path in ["/", "/assets", "/inspections", "/tickets", "/media", "/health"]:
+        for path in ["/", "/assets", "/inspections", "/tickets", "/media", "/health", "/audit", "/data-tools"]:
             response = client.get(path)
             assert response.status_code == 200, (path, response.status_code)
 
@@ -51,6 +51,16 @@ def run():
 
         print("PASS：6 个页面/健康检查路由")
         print("PASS：设备新增、巡检登记、工单创建与完成、素材归档")
+        response = client.get("/assets?q=TEST-PC-999")
+        assert response.status_code == 200 and "测试电脑" in response.get_data(as_text=True)
+        for path in ["/export/assets", "/export/inspections", "/export/tickets", "/export/media", "/export/audit_logs"]:
+            exported = client.get(path)
+            assert exported.status_code == 200 and "text/csv" in exported.headers.get("Content-Type", "")
+        backup = client.get("/backup")
+        assert backup.status_code == 200 and backup.data[:16] == b"SQLite format 3\\x00"
+        with sqlite3.connect(campus.DB) as conn:
+            assert conn.execute("SELECT COUNT(*) FROM audit_logs").fetchone()[0] >= 4
+        print("PASS：搜索、5 类 CSV 导出、SQLite 备份、操作记录")
         print("PASS：使用临时 SQLite 数据库，未修改真实演示数据")
         print("园务信息台冒烟测试全部通过。")
 
