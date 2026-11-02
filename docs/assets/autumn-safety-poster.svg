@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440" role="img" aria-labelledby="title desc">
+<title id="title">安全小卫士，平安伴成长——秋季安全教育主题活动海报</title>
+<desc id="desc">原创矢量插画海报，以奶油白、松柏绿和暖橙色呈现幼儿园安全教育主题。包含校园、道路、盾牌和安全标识图形。</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7F4E9"/><stop offset="1" stop-color="#E9EFE3"/></linearGradient>
+ <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#47745B"/><stop offset="1" stop-color="#1F4A38"/></linearGradient>
+ <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F2A36F"/><stop offset="1" stop-color="#D56F46"/></linearGradient>
+ <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#315C4A" opacity=".12"/></pattern>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#254735" flood-opacity=".13"/></filter>
+</defs>
+<rect width="1080" height="1440" fill="url(#bg)"/>
+<circle cx="950" cy="140" r="250" fill="#E6D9C2" opacity=".55"/>
+<circle cx="110" cy="1080" r="280" fill="#DCE8D8" opacity=".7"/>
+<rect x="0" y="0" width="1080" height="1440" fill="url(#dots)" opacity=".65"/>
+<path d="M0 930 C210 850 330 930 500 900 S820 820 1080 900 V1440 H0Z" fill="#DCE8D8"/>
+<path d="M0 1100 C230 1000 380 1080 560 1050 S880 970 1080 1035 V1440 H0Z" fill="#C7D8C7" opacity=".65"/>
+<!-- decorative leaves -->
+<g fill="#5E8768" opacity=".65"><path d="M890 360c-70-78-52-150 18-180 35 70 22 128-18 180Z"/><path d="M915 390c22-100 84-130 145-93-26 76-74 108-145 93Z"/><path d="M135 800c-66-66-56-132 5-166 38 60 34 113-5 166Z"/></g>
+<g fill="none" stroke="#315C4A" stroke-width="5" opacity=".35"><path d="M890 360Q940 250 1030 180"/><path d="M915 390Q1000 340 1060 300"/><path d="M135 800Q100 700 70 650"/></g>
+<!-- top label -->
+<rect x="82" y="76" width="300" height="54" rx="27" fill="#315C4A"/>
+<text x="232" y="111" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#F7F4E9">AUTUMN SAFETY WEEK</text>
+<text x="84" y="220" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="36" font-weight="700" letter-spacing="7" fill="#D4774E">秋季安全教育主题活动</text>
+<text x="76" y="345" font-family="'Noto Serif SC','Songti SC','Microsoft YaHei',serif" font-size="100" font-weight="800" letter-spacing="2" fill="#1F4938">安全小卫士</text>
+<text x="76" y="465" font-family="'Noto Serif SC','Songti SC','Microsoft YaHei',serif" font-size="100" font-weight="800" letter-spacing="2" fill="#1F4938">平安伴成长</text>
+<path d="M82 510H590" stroke="#D4774E" stroke-width="9" stroke-linecap="round"/>
+<text x="84" y="580" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="32" fill="#52695A">认识安全标识 · 学习自护常识 · 养成安全习惯</text>
+<!-- illustrated campus -->
+<g filter="url(#shadow)">
+ <rect x="130" y="710" width="820" height="400" rx="38" fill="#FFFDF6"/>
+ <rect x="190" y="785" width="700" height="270" rx="20" fill="#E8EFE4"/>
+ <!-- school body -->
+ <path d="M270 860L540 700L810 860V1030H270Z" fill="#F1D5B5"/>
+ <path d="M240 865L540 680L840 865H240Z" fill="#315C4A"/>
+ <path d="M490 1030V900Q540 835 590 900V1030Z" fill="#D4774E"/>
+ <rect x="330" y="890" width="100" height="90" rx="12" fill="#A8C6B3"/>
+ <rect x="650" y="890" width="100" height="90" rx="12" fill="#A8C6B3"/>
+ <path d="M380 890V980M330 935H430M700 890V980M650 935H750" stroke="#FFFDF6" stroke-width="9"/>
+ <rect x="505" y="750" width="70" height="54" rx="10" fill="#FFFDF6"/>
+ <path d="M540 760v34M523 777h34" stroke="#D4774E" stroke-width="8" stroke-linecap="round"/>
+ <!-- garden -->
+ <path d="M200 1030Q250 930 300 1030M780 1030Q830 920 880 1030" fill="#80A77C"/>
+ <g fill="#47745B"><circle cx="230" cy="940" r="34"/><circle cx="270" cy="920" r="42"/><circle cx="820" cy="930" r="38"/><circle cx="865" cy="950" r="30"/></g>
+ <g fill="#D4774E"><circle cx="220" cy="1000" r="12"/><circle cx="290" cy="1005" r="10"/><circle cx="800" cy="1000" r="12"/><circle cx="875" cy="1010" r="10"/></g>
+</g>
+<!-- shield icon -->
+<g transform="translate(770 600)" filter="url(#shadow)">
+ <path d="M0 0L112 36V120Q112 205 0 260Q-112 205-112 120V36Z" fill="url(#green)"/>
+ <path d="M-48 120L-12 156L55 82" fill="none" stroke="#FFF8E9" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<!-- road strip -->
+<path d="M0 1150Q260 1080 540 1160T1080 1150V1440H0Z" fill="#315C4A"/>
+<path d="M0 1260Q260 1190 540 1270T1080 1260" fill="none" stroke="#F7F4E9" stroke-width="8" stroke-dasharray="28 30" opacity=".75"/>
+<g transform="translate(130 1180)">
+ <circle cx="0" cy="0" r="38" fill="#F2A36F"/><path d="M-16-16H16V16H-16Z" fill="#FFFDF6"/>
+ <text x="0" y="75" text-anchor="middle" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="22" fill="#FFFDF6">看标识</text>
+</g>
+<g transform="translate(540 1180)">
+ <circle cx="0" cy="0" r="38" fill="#F2A36F"/><path d="M-17 2L-3 16L20-15" fill="none" stroke="#FFFDF6" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+ <text x="0" y="75" text-anchor="middle" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="22" fill="#FFFDF6">学规则</text>
+</g>
+<g transform="translate(950 1180)">
+ <circle cx="0" cy="0" r="38" fill="#F2A36F"/><path d="M-15 0H15M0-15V15" stroke="#FFFDF6" stroke-width="9" stroke-linecap="round"/>
+ <text x="0" y="75" text-anchor="middle" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="22" fill="#FFFDF6">会自护</text>
+</g>
+<text x="540" y="1390" text-anchor="middle" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="22" letter-spacing="4" fill="#E8EFE4">创意模拟海报 · 非真实园所活动记录</text>
+</svg>
