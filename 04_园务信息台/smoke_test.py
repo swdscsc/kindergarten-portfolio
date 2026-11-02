@@ -57,7 +57,7 @@ def run():
             exported = client.get(path)
             assert exported.status_code == 200 and "text/csv" in exported.headers.get("Content-Type", "")
         backup = client.get("/backup")
-        assert backup.status_code == 200 and backup.data[:16] == b"SQLite format 3\\x00"
+        assert backup.status_code == 200 and backup.data[:16] == b"SQLite format 3\x00"
         with sqlite3.connect(campus.DB) as conn:
             assert conn.execute("SELECT COUNT(*) FROM audit_logs").fetchone()[0] >= 4
         print("PASS：搜索、5 类 CSV 导出、SQLite 备份、操作记录")
