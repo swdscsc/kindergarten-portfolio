@@ -1,1 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900"><defs><linearGradient id="b" x2="1" y2="1"><stop stop-color="#F7F4E9"/><stop offset="1" stop-color="#DCE8D8"/></linearGradient></defs><rect width="900" height="900" fill="url(#b)"/><circle cx="740" cy="170" r="180" fill="#E8D7BD"/><rect x="70" y="70" width="760" height="760" rx="42" fill="none" stroke="#315C4A" stroke-width="3" opacity=".3"/><text x="450" y="190" text-anchor="middle" fill="#D4774E" font-family="Microsoft YaHei,sans-serif" font-size="30" font-weight="700" letter-spacing="8">AUTUMN SAFETY</text><text x="450" y="320" text-anchor="middle" fill="#203E31" font-family="Microsoft YaHei,sans-serif" font-size="78" font-weight="900">安全小卫士</text><text x="450" y="410" text-anchor="middle" fill="#203E31" font-family="Microsoft YaHei,sans-serif" font-size="70" font-weight="900">平安伴成长</text><g transform="translate(450 600)"><path d="M0-150L130-105V-8Q130 95 0 160Q-130 95-130-8V-105Z" fill="#315C4A"/><path d="M-55 0L-15 42L62-48" fill="none" stroke="#FFFDF6" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/></g><text x="450" y="810" text-anchor="middle" fill="#52695A" font-family="Microsoft YaHei,sans-serif" font-size="23">看标识 · 学规则 · 会自护</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-labelledby="t d">
+<title id="t">看见安全学会自护｜安全教育主题视觉提案</title><desc id="d">原创编辑式平面设计，以纸白、墨绿和朱砂红构成，包含清晰标题、编号和安全主题信息。</desc>
+<rect width="900" height="900" fill="#F3F0E8"/>
+<rect x="36" y="36" width="828" height="828" fill="none" stroke="#1D3029" stroke-width="2"/>
+<g fill="#1D3029" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif">
+<text x="72" y="102" font-size="18" letter-spacing="5" font-weight="700">公众号次条 / NOTE</text>
+<text x="828" y="102" text-anchor="end" font-size="16" letter-spacing="2">园务编辑部 / 2026</text>
+</g>
+<path d="M72 132H828" stroke="#1D3029" stroke-width="2"/>
+<text x="72" y="420" fill="#1D3029" font-family="'Noto Serif SC','Songti SC',serif" font-size="58" font-weight="700">看见安全</text>
+<text x="72" y="510" fill="#1D3029" font-family="'Noto Serif SC','Songti SC',serif" font-size="58" font-weight="700">学会自护</text>
+<rect x="72" y="638" width="100" height="9" fill="#B43B2E"/>
+<text x="72" y="702" fill="#53635A" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="20">从身边的小事开始练习</text>
+<g transform="translate(660 700)">
+<circle cx="72" cy="72" r="66" fill="none" stroke="#B43B2E" stroke-width="3"/>
+<path d="M72 25L112 39V75Q112 111 72 132Q32 111 32 75V39Z" fill="#1D4938"/>
+<path d="M52 76L67 91L94 59" fill="none" stroke="#F3F0E8" stroke-width="7" stroke-linecap="square"/>
+<path d="M-12 72H-70M214 72H156" stroke="#1D3029" stroke-width="2"/>
+</g>
+<g transform="translate(72 650)">
+<path d="M0 0H756" stroke="#1D3029" stroke-width="2"/>
+<text x="0" y="52" fill="#1D3029" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="20" letter-spacing="2">原创模拟主题视觉</text>
+<text x="756" y="52" text-anchor="end" fill="#B43B2E" font-family="Arial,sans-serif" font-size="18" letter-spacing="3">FIELD NOTES / 01</text>
+</g>
+<g fill="#B43B2E"><rect x="72" y="176" width="12" height="12"/><rect x="94" y="176" width="12" height="12"/><rect x="116" y="176" width="12" height="12"/></g>
+</svg>
