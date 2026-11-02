@@ -239,7 +239,7 @@ def export_csv(table):
         writer.writerows([tuple(row) for row in rows])
     else:
         writer.writerow(["暂无数据"])
-    return Response("\\ufeff"+output.getvalue(),mimetype="text/csv; charset=utf-8",headers={"Content-Disposition":f"attachment; filename={table}.csv"})
+    return Response("\ufeff"+output.getvalue(),mimetype="text/csv; charset=utf-8",headers={"Content-Disposition":f"attachment; filename={table}.csv"})
 
 @app.get("/backup")
 def backup_db():
