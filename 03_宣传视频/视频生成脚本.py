@@ -1,107 +1,124 @@
 from PIL import Image, ImageDraw, ImageFont
 import os, subprocess
 
-# 原创动态图形视频生成器：三种视觉风格，共同主题，不使用真实人物影像。
+# Original motion-graphics generator. No stock characters, generated child portraits,
+# or claims that the illustrated scenes are real kindergarten activities.
 W, H, FPS, DURATION = 720, 1280, 24, 12
+OUT = os.path.join(os.path.dirname(__file__), "成片")
+
 def first_existing(paths):
-    for item in paths:
-        if os.path.isfile(item):
-            return item
+    for path in paths:
+        if os.path.isfile(path):
+            return path
     return None
 
-FONT = first_existing([
+SANS = first_existing([
     "C:/Windows/Fonts/msyhbd.ttc", "C:/Windows/Fonts/simhei.ttf",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
 ])
-REGULAR = first_existing([
+REG = first_existing([
     "C:/Windows/Fonts/msyh.ttc", "C:/Windows/Fonts/simsun.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 ])
-OUT = os.path.join(os.path.dirname(__file__), "成片")
-os.makedirs(OUT, exist_ok=True)
+SERIF = first_existing([
+    "C:/Windows/Fonts/simsun.ttc", "C:/Windows/Fonts/STSONG.TTF",
+    "/usr/share/fonts/truetype/arphic-gbsn00lp/gbsn00lp.ttf"
+]) or REG or SANS
 
-SCENES = [
-    [("安全小卫士","平安伴成长","秋季安全教育主题活动"),("认识安全标识","看懂方向 · 记住提示","从身边的图形开始学习"),("学习安全规则","听从指引 · 不推不挤","把安全行为练在日常"),("共同守护成长","家园携手 · 安心相伴","创意模拟视频｜非真实活动记录")],
-    [("今天的安全任务","发现身边的安全线索","观察 · 讨论 · 练习"),("任务 01","找到安全出口标识","认识图形，理解方向"),("任务 02","记住有序行动规则","不推挤、不逗留、不返回取物"),("任务完成","让安全成为日常习惯","创意模拟视频｜非真实活动记录")],
-    [("一份安全小约定","从认识开始","看见标识，听从指引"),("看见","认识常见安全标识","观察身边的安全提示"),("记住","听从老师和成人指引","不推挤、不逗留"),("做到","把安全习惯带进生活","创意模拟视频｜非真实活动记录")]
+PAPER=(243,240,232); INK=(29,48,41); GREEN=(29,73,56)
+RED=(180,59,46); MUTED=(83,99,90); LINE=(201,200,189); PALE=(231,227,216)
+
+def font(size, kind="sans"):
+    path={"sans":SANS,"reg":REG,"serif":SERIF}[kind]
+    return ImageFont.truetype(path,size) if path else ImageFont.load_default()
+
+def txt(draw,xy,text,size,color=INK,kind="sans",anchor=None):
+    draw.text(xy,text,font=font(size,kind),fill=color,anchor=anchor)
+
+def smooth(x):
+    return x*x*(3-2*x)
+
+SCENES=[
+ [('安全小卫士','平安伴成长','认识标识 / 学习规则 / 知道求助','从熟悉的日常开始'),('先看懂提示','认识安全出口与方向标识','观察图形，听成人解释','01 / 看见'),('再练习动作','排队慢行，不推挤、不追逐','把提醒变成能做到的动作','02 / 练习'),('遇到问题会求助','告诉身边可信赖的成人','安全教育不止于一次主题活动','03 / 求助')],
+ [('把安全做成日常','三个小步骤，一起练习','看见 / 听懂 / 做到','安全主题内容提案'),('第一步：看见','找到身边的安全标识','先观察，再理解方向','01 / 观察'),('第二步：听懂','听从成人清楚的指引','规则要具体，孩子才知道怎么做','02 / 理解'),('第三步：做到','慢行、有序，及时求助','把安全提醒放进每天的生活','03 / 行动')],
+ [('一份安全小约定','看见 · 记住 · 做到','给孩子清楚、适龄的提醒','家园共育主题'),('看见','留意公共区域的安全提示','先停下来观察，不急着跑过去','01 / 看见'),('记住','听从老师和成人的指引','不推挤、不逗留、不擅自离队','02 / 记住'),('做到','需要帮助时主动说出来','知道可以求助，也知道向谁求助','03 / 做到')]
 ]
 
-def ft(size, bold=True):
-    path = FONT if bold else REGULAR
-    return ImageFont.truetype(path, size) if path else ImageFont.load_default()
-
-def centered(draw, text, y, f, color):
-    box = draw.textbbox((0,0), text, font=f)
-    draw.text(((W-(box[2]-box[0]))/2, y), text, font=f, fill=color)
-
-def render(style, scene, local):
-    cream=(247,244,233); green=(38,76,57); sage=(220,232,216)
-    orange=(212,119,78); ink=(32,62,49); muted=(95,116,101)
-    title, sub, foot = SCENES[style][scene]
-    im=Image.new("RGB",(W,H), cream if style != 1 else (238,243,232))
+def base(style,scene,local):
+    im=Image.new("RGB",(W,H),PAPER if style!=1 else (239,238,228))
     d=ImageDraw.Draw(im)
-    if style == 0:
-        shift=int(local*30)
-        d.ellipse((400-shift,70,870-shift,540),fill=(232,220,197))
-        d.ellipse((-180+shift,800,430+shift,1410),fill=sage)
-        d.rounded_rectangle((48,54,672,1226),radius=30,outline=(203,215,199),width=2)
-        d.text((82,92),"AUTUMN / SAFETY",font=ft(20),fill=orange)
-        centered(d,title,360,ft(57),ink); centered(d,sub,480,ft(28,False),muted)
-        d.rounded_rectangle((160,590,560,596),radius=3,fill=orange)
-        cx,cy=360,790
-        d.polygon([(cx,cy-125),(cx+105,cy-88),(cx+105,cy+10),(cx,cy+150),(cx-105,cy+10),(cx-105,cy-88)],fill=green)
-        d.line((cx-48,cy+2,cx-10,cy+42,cx+55,cy-38),fill=cream,width=17,joint="curve")
-        centered(d,foot,1080,ft(20,False),muted)
-    elif style == 1:
-        d.ellipse((430,60,830,460),fill=(245,184,139))
-        d.ellipse((-160,830,300,1290),fill=(194,218,190))
-        for i in range(9):
-            x=(i*97+int(local*28))%760-20; y=220+(i%3)*270
-            d.ellipse((x,y,x+12,y+12),fill=orange)
-        d.rounded_rectangle((52,220,668,1030),radius=42,fill=(255,253,246))
-        d.rounded_rectangle((86,260,634,330),radius=25,fill=green)
-        d.text((116,278),"SAFE PLAY / MISSION",font=ft(20),fill=cream)
-        centered(d,title,430,ft(52),ink); centered(d,sub,545,ft(26,False),muted)
-        d.line((160,770,560,770),fill=(205,216,202),width=13)
-        for i,x in enumerate((170,360,550),1):
-            d.ellipse((x-48,722,x+48,818),fill=orange if i==2 else green)
-            d.text((x-13,737),str(i),font=ft(42),fill=cream)
-        centered(d,foot,1100,ft(18,False),muted)
+    d.rectangle((32,32,W-32,H-32),outline=LINE,width=2)
+    txt(d,(64,68),"园务编辑部  /  安全主题提案",18,RED)
+    txt(d,(W-64,68),f"{scene+1:02d} / 04",18,MUTED,anchor="ra")
+    d.line((64,112,W-64,112),fill=INK,width=2)
+    title,sub,detail,tag=SCENES[style][scene]
+    lift=int(24*(1-smooth(min(1,local*2))))
+    if scene==0:
+        txt(d,(64,220-lift),"AUTUMN / SAFETY",18,RED)
+        txt(d,(64,360-lift),title,58,INK,"serif")
+        txt(d,(64,455-lift),sub,62,GREEN,"serif")
+        d.rectangle((64,515,64+int(210*smooth(min(1,local*2))),523),fill=RED)
+        txt(d,(64,600),detail,24,MUTED,"reg")
+        cx,cy=360,850
+        d.ellipse((cx-155,cy-155,cx+155,cy+155),outline=RED,width=3)
+        pts=[(cx,cy-112),(cx+84,cy-82),(cx+84,cy+8),(cx,cy+118),(cx-84,cy+8),(cx-84,cy-82)]
+        d.polygon(pts,fill=GREEN)
+        d.line((cx-38,cy+5,cx-8,cy+36,cx+46,cy-35),fill=PAPER,width=14)
+        txt(d,(64,1080),tag,20,RED)
     else:
-        d.rectangle((0,0,W,18),fill=green)
-        d.text((70,82),"A SMALL SAFETY GUIDE",font=ft(18),fill=orange)
-        d.text((70,180),f"{scene+1:02d}",font=ft(128),fill=sage)
-        d.text((70,390),title,font=ft(52),fill=ink)
-        d.rounded_rectangle((70,500,650,504),radius=2,fill=orange)
-        d.text((70,560),sub,font=ft(27,False),fill=muted)
-        d.rounded_rectangle((70,710,650,970),radius=22,fill=(255,253,246),outline=(215,222,210),width=2)
-        for j,txt in enumerate(["先观察","再理解","记住并实践"]):
-            y=755+j*68
-            d.rounded_rectangle((104,y,140,y+36),radius=9,outline=green,width=3)
-            d.line((112,y+18,122,y+28,136,y+9),fill=orange,width=4)
-            d.text((165,y-2),txt,font=ft(25),fill=ink)
-        d.text((70,1110),foot,font=ft(18,False),fill=muted)
-    progress=(scene+local)/4
-    d.rounded_rectangle((70,1190,650,1200),radius=5,fill=(220,226,216))
-    d.rounded_rectangle((70,1190,70+580*progress,1200),radius=5,fill=orange)
+        txt(d,(64,210),f"{scene:02d}",148,PALE,"serif")
+        txt(d,(66,410-lift),tag,18,RED)
+        txt(d,(64,520-lift),title,48,INK,"serif")
+        d.line((64,590,656,590),fill=RED,width=4)
+        txt(d,(64,670),sub,27,GREEN)
+        txt(d,(64,735),detail,21,MUTED,"reg")
+        if style==1:
+            y=965; xs=[120,360,600]
+            d.line((xs[0],y,xs[2],y),fill=LINE,width=8)
+            prog=xs[0]+(xs[2]-xs[0])*smooth(min(1,local*1.5))
+            d.line((xs[0],y,prog,y),fill=RED,width=8)
+            for i,x in enumerate(xs):
+                fill=RED if i<=scene-1 else GREEN if i==scene else PAPER
+                d.ellipse((x-28,y-28,x+28,y+28),fill=fill,outline=INK,width=2)
+                txt(d,(x,y+65),["看见","听懂","做到"][i],18,INK,anchor="mm")
+        elif style==2:
+            for i,label in enumerate(["先观察","听从指引","及时求助"]):
+                y=900+i*74
+                d.rounded_rectangle((68,y,108,y+40),radius=5,outline=GREEN,width=3)
+                if i<=scene-1:
+                    d.line((76,y+20,88,y+32,101,y+9),fill=RED,width=5)
+                txt(d,(132,y+20),label,23,INK,anchor="lm")
+        else:
+            d.rectangle((90,900,630,1060),fill=PALE)
+            d.rectangle((120,930,600,1030),outline=INK,width=2)
+            txt(d,(360,980),f"{scene:02d}   /   {tag.split(' / ')[-1]}",25,RED,anchor="mm")
+    d.line((64,1155,656,1155),fill=LINE,width=2)
+    txt(d,(64,1182),"模拟动态图形 / 非真实园所活动记录",15,MUTED,"reg")
+    d.rectangle((64,1218,656,1225),fill=LINE)
+    d.rectangle((64,1218,64+int(592*((scene+local)/4)),1225),fill=RED)
+    return im
+
+def render(style,t):
+    scene=min(3,int(t/3)); local=(t-scene*3)/3
+    im=base(style,scene,local)
+    if scene<3 and local>0.88:
+        nxt=base(style,scene+1,0)
+        im=Image.blend(im,nxt,smooth((local-0.88)/0.12)*0.18)
     return im
 
 def main():
-    names=["01_Editorial_Cinematic.mp4","02_Playful_Geometric.mp4","03_Minimal_Checklist.mp4"]
+    os.makedirs(OUT,exist_ok=True)
+    names=["01_编辑部纪实风.mp4","02_路径信息图风.mp4","03_清单排版风.mp4"]
     for style,name in enumerate(names):
         path=os.path.join(OUT,name)
-        cmd=["ffmpeg","-y","-f","rawvideo","-pix_fmt","rgb24","-s",f"{W}x{H}","-r",str(FPS),"-i","-","-an","-c:v","libx264","-preset","medium","-crf","25","-pix_fmt","yuv420p","-movflags","+faststart",path]
+        cmd=["ffmpeg","-y","-f","rawvideo","-pix_fmt","rgb24","-s",f"{W}x{H}","-r",str(FPS),"-i","-","-an","-c:v","libx264","-preset","slow","-crf","20","-pix_fmt","yuv420p","-movflags","+faststart",path]
         proc=subprocess.Popen(cmd,stdin=subprocess.PIPE)
         for frame in range(FPS*DURATION):
-            t=frame/FPS; scene=min(3,int(t/3)); local=(t-scene*3)/3
-            frame_image=render(style,scene,local)
-            fade=min(1,local*5,(1-local)*5)
-            if fade < 1:
-                frame_image=Image.blend(Image.new("RGB",(W,H),(247,244,233)),frame_image,max(0,fade))
-            proc.stdin.write(frame_image.tobytes())
+            proc.stdin.write(render(style,frame/FPS).tobytes())
         proc.stdin.close()
-        if proc.wait()!=0: raise RuntimeError(f"FFmpeg failed: {name}")
-        print(f"Generated: {path}")
+        if proc.wait()!=0:
+            raise RuntimeError("FFmpeg failed: "+name)
+        print("Generated:",path)
 
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
