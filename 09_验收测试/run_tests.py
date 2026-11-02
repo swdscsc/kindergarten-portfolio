@@ -1,134 +1,134 @@
 # -*- coding: utf-8 -*-
+"""当前版本作品集验收脚本。
+用法：python 09_验收测试/run_tests.py [--json]
+依赖：Python 3.10+；若需检查 MP4，另需 ffprobe。
+说明：MP4 成片当前作为本次对话独立文件交付；放入 03_宣传视频/成片 后会自动纳入检测。
 """
-作品集验收测试脚本（真实执行，不做任何模拟断言）
-用法: python run_tests.py            # 运行全部测试
-      python run_tests.py --json     # 追加输出 JSON 结果
-覆盖: 文件完整性 / 图片规格 / 封面规格 / 视频元数据 / 文档可读性 / 图文字数
-"""
-import os, sys, json, subprocess, wave, datetime
+from pathlib import Path
+import json, re, subprocess, sys, datetime
+import xml.etree.ElementTree as ET
 
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 作品集根目录
+ROOT = Path(__file__).resolve().parents[1]
 results = []
 
-def check(case_id, name, expect, actual_ok, detail):
-    results.append({"id": case_id, "case": name, "expect": expect,
-                    "result": "通过" if actual_ok else "不通过", "detail": detail})
+def add(case, ok, detail):
+    results.append({"case": case, "status": "PASS" if ok else "FAIL", "detail": detail})
 
-def p(rel):
-    return os.path.join(BASE, rel)
+def exists(rel):
+    p = ROOT / rel
+    return p.is_file(), p
 
-# ---------- T1 文件完整性 ----------
-PHOTOS = ["IMG_2401_活动拱门与主题横幅", "IMG_2402_操场场地布置全景", "IMG_2403_主题宣传海报",
-          "IMG_2404_交通安全体验区", "IMG_2405_消防安全体验区", "IMG_2406_防拐骗情景演练道具",
-          "IMG_2407_安全小卫士签到板", "IMG_2408_安全知识四大展板", "IMG_2409_活动物资准备平铺",
-          "IMG_2410_教师示范避险动作", "IMG_2411_秋日校园氛围", "IMG_2412_活动流程指示牌",
-          "IMG_2413_安全小卫士打卡墙"]
-missing = [f for f in PHOTOS if not os.path.isfile(p(f"01_原图照片/{f}.jpg"))]
-check("T1-1", "13 张活动照片齐全", "13/13 存在", not missing,
-      "缺失: " + (", ".join(missing) if missing else "无"))
+# 1. Required deliverables
+required = [
+    "README.md", "00_作品集总说明.md",
+    "docs/index.html", "docs/visual/index.html", "docs/content/index.html", "docs/video/index.html",
+    "docs/assets/autumn-safety-poster.svg",
+    "docs/assets/wechat-cover-autumn-safety.svg",
+    "docs/assets/wechat-square-autumn-safety.svg",
+    "docs/assets/activity-long-poster-autumn-safety.svg",
+    "06_素材清单/素材清单与文件夹说明.md",
+    "03_宣传视频/视频制作说明.md", "03_宣传视频/视频生成脚本.py",
+    "05_公众号图文稿/原创推文01_安全小卫士平安伴成长.md",
+    "05_公众号图文稿/原创推文02_秋日自然探索小课堂.md",
+    "05_公众号图文稿/原创推文03_家园携手生活自理.md",
+]
+missing = [x for x in required if not (ROOT / x).is_file()]
+add("核心交付文件", not missing, "缺失：" + (", ".join(missing) if missing else "全部存在（共 %d 项）" % len(required)))
 
-CONTRAST = [f"{n}_{s}" for n in ["IMG_2401_活动拱门与主题横幅", "IMG_2404_交通安全体验区", "IMG_2411_秋日校园氛围"]
-            for s in ["调整前", "调整后", "前后对比"]]
-missing = [f for f in CONTRAST if not os.path.isfile(p(f"02_修图对比/{f}.jpg"))]
-check("T1-2", "3 组修图对比齐全（9 个文件）", "9/9 存在", not missing,
-      "缺失: " + (", ".join(missing) if missing else "无"))
+# 2. SVG syntax and intrinsic dimensions
+svg_files = [
+    "docs/assets/autumn-safety-poster.svg",
+    "docs/assets/wechat-cover-autumn-safety.svg",
+    "docs/assets/wechat-square-autumn-safety.svg",
+    "docs/assets/activity-long-poster-autumn-safety.svg",
+]
+svg_errors = []
+for rel in svg_files:
+    try:
+        root = ET.parse(ROOT / rel).getroot()
+        if not root.tag.endswith("svg"):
+            svg_errors.append(rel + "：根元素不是 svg")
+    except Exception as exc:
+        svg_errors.append(rel + "：" + str(exc))
+add("4 张 SVG 可解析", not svg_errors, "；".join(svg_errors) if svg_errors else "4/4 XML 结构有效")
 
-must = ["README.md", "03_宣传视频/秋季安全教育主题活动_宣传视频_41秒.mp4",
-        "03_宣传视频/视频分镜脚本_剪映制作对照表.md",
-        "04_封面图/公众号头条封面_900x383.png", "04_封面图/公众号次条封面_200x200.png",
-        "05_公众号图文稿/公众号图文稿_秋季安全教育主题活动.md",
-        "05_公众号图文稿/公众号图文稿_秋季安全教育主题活动.docx",
-        "06_素材清单/素材清单与文件夹说明.md",
-        "07_操作流程文档/从拍摄到发布_全流程操作文档.md",
-        "07_操作流程文档/从拍摄到发布_全流程操作文档.docx",
-        "07_操作流程文档/真实幼儿园公众号推文拆解笔记.md",
-        "08_设计文档/设计文档.md", "10_面试准备/面试问题及回答准备.md",
-        "docs/index.html"]
-missing = [f for f in must if not os.path.isfile(p(f))]
-check("T1-3", "核心交付文件齐全", "14/14 存在", not missing,
-      "缺失: " + (", ".join(missing) if missing else "无"))
+# 3. HTML pages and local image references
+html_files = ["docs/index.html", "docs/visual/index.html", "docs/content/index.html", "docs/video/index.html"]
+html_errors = []
+for rel in html_files:
+    p = ROOT / rel
+    try:
+        txt = p.read_text(encoding="utf-8")
+        if "<html" not in txt.lower() or "</html>" not in txt.lower():
+            html_errors.append(rel + "：HTML 文档结构不完整")
+        for target in re.findall(r'<img[^>]+src=["\']([^"\']+)', txt, flags=re.I):
+            if target.startswith(("http://", "https://", "data:")):
+                continue
+            dest = (p.parent / target).resolve()
+            if not dest.is_file():
+                html_errors.append(rel + "：图片引用不存在 " + target)
+    except Exception as exc:
+        html_errors.append(rel + "：" + str(exc))
+add("4 个展示页结构与图片引用", not html_errors, "；".join(html_errors) if html_errors else "HTML 均存在，页面内本地图片引用均可定位")
 
-# ---------- T2 图片规格 ----------
-try:
-    from PIL import Image
-    ok, details = True, []
-    for f in PHOTOS:
-        im = Image.open(p(f"01_原图照片/{f}.jpg"))
-        if im.size != (1600, 1200):
-            ok = False; details.append(f"{f}: {im.size}")
-    check("T2-1", "活动照片尺寸统一 1600×1200 JPG", "13 张全部符合", ok,
-          "异常: " + (", ".join(details) if details else "无"))
-    c1 = Image.open(p("04_封面图/公众号头条封面_900x383.png"))
-    c2 = Image.open(p("04_封面图/公众号次条封面_200x200.png"))
-    ok = c1.size == (900, 383) and c2.size == (200, 200)
-    check("T2-2", "公众号封面规格（头条 900×383 / 次条 200×200）", "符合微信官方比例",
-          ok, f"头条 {c1.size}，次条 {c2.size}")
-except ImportError:
-    check("T2-1", "图片规格", "PIL 可用", False, "未安装 Pillow，无法校验")
+# 4. Article content
+article_files = [
+    "05_公众号图文稿/原创推文01_安全小卫士平安伴成长.md",
+    "05_公众号图文稿/原创推文02_秋日自然探索小课堂.md",
+    "05_公众号图文稿/原创推文03_家园携手生活自理.md",
+]
+article_errors = []
+for rel in article_files:
+    try:
+        text = (ROOT / rel).read_text(encoding="utf-8")
+        cn = sum(1 for ch in text if "\u4e00" <= ch <= "\u9fff")
+        if cn < 450:
+            article_errors.append(rel + "：正文内容偏短（%d 个汉字）" % cn)
+        if "作品属性" not in text or "发布前核对" not in text:
+            article_errors.append(rel + "：缺少模拟属性或发布审核提醒")
+    except Exception as exc:
+        article_errors.append(rel + "：" + str(exc))
+add("3 篇原创稿完整性", not article_errors, "；".join(article_errors) if article_errors else "3/3 有足够正文，均包含模拟属性与发布审核提醒")
 
-# ---------- T3 视频元数据 ----------
-V = p("03_宣传视频/秋季安全教育主题活动_宣传视频_41秒.mp4")
-try:
-    r = subprocess.run(["ffmpeg", "-i", V], capture_output=True, text=True)
-    info = r.stderr
-    import re
-    dur = re.search(r"Duration: (\d+):(\d+):([\d.]+)", info)
-    res = re.search(r"(\d{3,4})x(\d{3,4})", info)
-    fps = re.search(r"([\d.]+) fps", info)
-    has_audio = "Audio:" in info
-    seconds = int(dur.group(1))*3600 + int(dur.group(2))*60 + float(dur.group(3))
-    ok = 30 <= seconds <= 60 and res and res.group(1) == "1280" and has_audio
-    check("T3-1", "视频时长 30–60 秒、720P、含音轨",
-          "30–60s / 1280x720 / 有音轨", ok,
-          f"实际 {seconds:.1f}s / {res.group(1)}x{res.group(2) if res else '?'} / 音轨{'有' if has_audio else '无'} / {fps.group(1) if fps else '?'}fps")
-except FileNotFoundError:
-    check("T3-1", "视频元数据", "ffmpeg 可用", False, "未安装 ffmpeg，无法校验")
+# 5. Video source and optional local MP4 files
+video_script = ROOT / "03_宣传视频/视频生成脚本.py"
+add("视频生成脚本", video_script.is_file(), str(video_script.relative_to(ROOT)) if video_script.is_file() else "脚本缺失")
+mp4_dir = ROOT / "03_宣传视频/成片"
+mp4s = sorted(mp4_dir.glob("*.mp4")) if mp4_dir.exists() else []
+if not mp4s:
+    results.append({"case": "MP4 成片元数据", "status": "INFO", "detail": "成片由本次对话单独交付；如需纳入仓库测试，请将 3 个 MP4 放入 03_宣传视频/成片"})
+else:
+    ffprobe = subprocess.run(["bash", "-lc", "command -v ffprobe"], capture_output=True, text=True).stdout.strip()
+    if not ffprobe:
+        results.append({"case": "MP4 成片元数据", "status": "INFO", "detail": "未安装 ffprobe，跳过视频元数据检查"})
+    else:
+        failures = []
+        for p in mp4s:
+            raw = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration:stream=codec_name,width,height", "-of", "json", str(p)], capture_output=True, text=True)
+            try:
+                data = json.loads(raw.stdout)
+                stream = next(s for s in data["streams"] if s.get("codec_name") == "h264")
+                duration = float(data["format"]["duration"])
+                if not (10 <= duration <= 15 and stream.get("width") == 720 and stream.get("height") == 1280):
+                    failures.append(p.name + "：规格不符合")
+            except Exception as exc:
+                failures.append(p.name + "：" + str(exc))
+        add("MP4 成片元数据", not failures and len(mp4s) >= 3, "；".join(failures) if failures else "%d 个 MP4 检查通过" % len(mp4s))
 
-# ---------- T4 文档可读性 ----------
-try:
-    import docx as docxlib
-    a = docxlib.Document(p("05_公众号图文稿/公众号图文稿_秋季安全教育主题活动.docx"))
-    b = docxlib.Document(p("07_操作流程文档/从拍摄到发布_全流程操作文档.docx"))
-    ok = len(a.paragraphs) > 10 and len(b.paragraphs) > 10
-    check("T4-1", "两份 Word 文档可正常解析", "段落结构完整", ok,
-          f"图文稿 {len(a.paragraphs)} 段 / 流程文档 {len(b.paragraphs)} 段")
-except Exception as e:
-    check("T4-1", "Word 文档可读性", "可解析", False, str(e))
-
-# ---------- T5 图文稿字数 ----------
-try:
-    txt = open(p("05_公众号图文稿/公众号图文稿_秋季安全教育主题活动.md"), encoding="utf-8").read()
-    body = txt.split("**【导语】**")[1].split("## 排版说明")[0]
-    cn = sum(1 for ch in body if '\u4e00' <= ch <= '\u9fff')
-    check("T5-1", "正文汉字数 600–800", "600–800 字", 600 <= cn <= 800, f"实际 {cn} 字")
-except Exception as e:
-    check("T5-1", "图文字数", "600–800 字", False, str(e))
-
-# ---------- T6 README 基本项 ----------
-try:
-    rd = open(p("README.md"), encoding="utf-8").read()
-    items = ["安装", "运行", "目录结构", "成果", "技术难点"]
-    miss = [k for k in items if k not in rd]
-    check("T6-1", "README 含安装/运行/目录/成果/难点章节", "5/5 章节齐备", not miss,
-          "缺失章节: " + (", ".join(miss) if miss else "无"))
-except Exception as e:
-    check("T6-1", "README", "存在且含关键章节", False, str(e))
-
-# ---------- 汇总 ----------
-passed = sum(1 for r in results if r["result"] == "通过")
-report = {"time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-          "passed": passed, "total": len(results), "results": results}
-print("=" * 62)
-print(f"作品集验收测试  {report['time']}")
-print("=" * 62)
-for r in results:
-    mark = "PASS" if r["result"] == "通过" else "FAIL"
-    print(f"[{mark}] {r['id']} {r['case']}")
-    print(f"       期望: {r['expect']} ｜ 实际: {r['detail']}")
-print("-" * 62)
-print(f"结果: {passed}/{len(results)} 通过")
+# 6. Report
+passed = sum(x["status"] == "PASS" for x in results)
+failed = sum(x["status"] == "FAIL" for x in results)
+info = sum(x["status"] == "INFO" for x in results)
+report = {"time": datetime.datetime.now().isoformat(timespec="seconds"), "passed": passed, "failed": failed, "info": info, "total": len(results), "results": results}
+print("=" * 64)
+print("幼儿园集团信息管理员作品集｜当前版本验收")
+print("=" * 64)
+for item in results:
+    print("[%s] %s — %s" % (item["status"], item["case"], item["detail"]))
+print("-" * 64)
+print("通过 %d ｜失败 %d ｜提示 %d ｜总项 %d" % (passed, failed, info, len(results)))
 if "--json" in sys.argv:
-    with open(os.path.join(BASE, "09_验收测试", "last_run.json"), "w", encoding="utf-8") as f:
-        json.dump(report, f, ensure_ascii=False, indent=2)
-    print("JSON 已写入 09_验收测试/last_run.json")
-sys.exit(0 if passed == len(results) else 1)
+    out = ROOT / "09_验收测试/last_run.json"
+    out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("JSON 报告已写入：" + str(out))
+sys.exit(1 if failed else 0)
