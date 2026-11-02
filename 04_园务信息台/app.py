@@ -132,7 +132,7 @@ def assets():
             try:
                 c.execute("INSERT INTO assets(asset_code,name,category,location,owner,status,last_check) VALUES(?,?,?,?,?,?,?)",
                 (request.form["asset_code"].strip(),request.form["name"].strip(),request.form["category"],request.form.get("location",""),request.form.get("owner",""),request.form.get("status","在用"),request.form.get("last_check","")))
-                c.commit(); flash("设备已登记。")
+                log_action(c,"新增设备","assets",request.form["asset_code"].strip()); c.commit(); flash("设备已登记。")
             except sqlite3.IntegrityError: flash("资产编号重复，请检查后重新提交。")
             return redirect(url_for("assets"))
         q=request.args.get("q","").strip()
@@ -154,7 +154,7 @@ def inspections():
             c.execute("INSERT INTO inspections(asset_id,check_date,result,issue,action,checker) VALUES(?,?,?,?,?,?)",
             (aid,request.form["check_date"],request.form["result"],request.form.get("issue",""),request.form.get("action",""),request.form.get("checker","")))
             if aid: c.execute("UPDATE assets SET last_check=? WHERE id=?",(request.form["check_date"],aid))
-            c.commit();flash("巡检记录已保存。");return redirect(url_for("inspections"))
+            log_action(c,"新增巡检","inspections",request.form["result"]); c.commit();flash("巡检记录已保存。");return redirect(url_for("inspections"))
         rows=c.execute("""SELECT i.*,a.name AS asset_name,a.asset_code FROM inspections i LEFT JOIN assets a ON i.asset_id=a.id ORDER BY i.id DESC""").fetchall()
         assets=c.execute("SELECT id,asset_code,name FROM assets ORDER BY name").fetchall()
     body=render_template_string("""
@@ -176,12 +176,12 @@ def tickets():
             no="IT-"+datetime.now().strftime("%Y%m%d-%H%M%S-%f")[:19]
             c.execute("INSERT INTO tickets(ticket_no,created_at,department,contact,device,description,priority,status) VALUES(?,?,?,?,?,?,?,'待受理')",
             (no,datetime.now().strftime("%Y-%m-%d %H:%M"),request.form.get("department",""),request.form.get("contact",""),request.form["device"],request.form["description"],request.form.get("priority","普通")))
-            c.commit();flash("报修工单已创建："+no);return redirect(url_for("tickets"))
+            log_action(c,"创建工单","tickets",no); c.commit();flash("报修工单已创建："+no);return redirect(url_for("tickets"))
         if request.args.get("update"):
             tid=request.args.get("update"); status=request.args.get("status","处理中")
             c.execute("UPDATE tickets SET status=?,assignee=?,resolution=?,closed_at=? WHERE id=?",
             (status,request.args.get("assignee",""),request.args.get("resolution",""),datetime.now().strftime("%Y-%m-%d %H:%M") if status=="已完成" else "",tid))
-            c.commit();flash("工单状态已更新。");return redirect(url_for("tickets"))
+            log_action(c,"更新工单","tickets",tid+" → "+status); c.commit();flash("工单状态已更新。");return redirect(url_for("tickets"))
         q=request.args.get("q","").strip()
         rows=c.execute("SELECT * FROM tickets WHERE ticket_no LIKE ? OR device LIKE ? OR description LIKE ? OR department LIKE ? OR status LIKE ? ORDER BY id DESC", tuple(["%"+q+"%"]*5)).fetchall()
     body=render_template_string("""
@@ -199,7 +199,7 @@ def media():
         if request.method=="POST":
             c.execute("INSERT INTO media(event_date,event_name,material_type,count,permission_status,archive_path,reviewer,note) VALUES(?,?,?,?,?,?,?,?)",
             (request.form["event_date"],request.form["event_name"],request.form.get("material_type","照片"),int(request.form.get("count") or 0),request.form.get("permission_status","待核验"),request.form.get("archive_path",""),request.form.get("reviewer",""),request.form.get("note","")))
-            c.commit();flash("素材归档登记已保存。");return redirect(url_for("media"))
+            log_action(c,"新增素材归档","media",request.form["event_name"]); c.commit();flash("素材归档登记已保存。");return redirect(url_for("media"))
         q=request.args.get("q","").strip()
         rows=c.execute("SELECT * FROM media WHERE event_name LIKE ? OR material_type LIKE ? OR permission_status LIKE ? OR archive_path LIKE ? ORDER BY id DESC", tuple(["%"+q+"%"]*4)).fetchall()
     body=render_template_string("""
