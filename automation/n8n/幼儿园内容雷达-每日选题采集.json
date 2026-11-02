@@ -1,0 +1,168 @@
+{
+  "name": "幼儿园内容雷达-每日选题采集",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 8,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "id": "a1",
+      "name": "每日08:30触发",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=site%3Amoe.gov.cn+%E5%AD%A6%E5%89%8D%E6%95%99%E8%82%B2+OR+%E5%B9%BC%E5%84%BF%E5%9B%AD&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+      },
+      "id": "b1",
+      "name": "采集教育部公开资讯",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        500,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=%E5%AD%A6%E5%89%8D%E6%95%99%E8%82%B2+%E5%AE%89%E5%85%A8%E6%95%99%E8%82%B2+OR+%E5%AE%B6%E5%9B%AD%E5%85%B1%E8%82%B2&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+      },
+      "id": "b2",
+      "name": "采集安全与家园共育",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=%E5%B9%BC%E5%84%BF%E5%9B%AD+%E7%89%B9%E8%89%B2%E8%AF%BE%E7%A8%8B+OR+%E8%87%AA%E7%84%B6%E6%95%99%E8%82%B2+OR+%E5%AD%A6%E5%89%8D%E6%95%99%E8%82%B2%E5%AE%A3%E4%BC%A0%E6%9C%88&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+      },
+      "id": "b3",
+      "name": "采集课程与活动案例",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        500,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "c1",
+      "name": "合并资讯",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const seen = new Set();\nconst rows = [];\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const link = j.link || j.url || '';\n  const title = (j.title || '').trim();\n  if (!title || !link || seen.has(link)) continue;\n  seen.add(link);\n  const hay = `${title} ${j.contentSnippet || j.content || ''}`;\n  let category = '综合学前教育';\n  if (/安全|消防|卫生|健康|防护/.test(hay)) category = '安全与健康';\n  else if (/家园|亲子|家长|家庭/.test(hay)) category = '家园共育';\n  else if (/课程|自然|游戏|活动|环境/.test(hay)) category = '课程与活动';\n  else if (/政策|通知|教育部|评估|管理/.test(hay)) category = '政策与管理';\n  const score = (/官方|教育部|教育厅|教育局/.test(hay) ? 2 : 0) + (/幼儿园|学前教育/.test(hay) ? 2 : 0) + (/安全|家园|课程|保教|政策/.test(hay) ? 1 : 0);\n  rows.push({ json: { title, link, pubDate: j.pubDate || j.isoDate || '', source: j.creator || j.author || 'RSS来源', category, priorityScore: score, summary: (j.contentSnippet || j.content || '').replace(/<[^>]*>/g, '').slice(0, 500), reviewStatus: '待人工核验', originalityReminder: '仅作选题参考；核验原文后重新构思，不复制原文或素材。' } });\n}\nrows.sort((a,b) => b.json.priorityScore - a.json.priorityScore);\nreturn rows.slice(0, 30);"
+      },
+      "id": "d1",
+      "name": "去重分类与选题初筛",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "每日08:30触发": {
+      "main": [
+        [
+          {
+            "node": "采集教育部公开资讯",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "采集安全与家园共育",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "采集课程与活动案例",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "采集教育部公开资讯": {
+      "main": [
+        [
+          {
+            "node": "合并资讯",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "采集安全与家园共育": {
+      "main": [
+        [
+          {
+            "node": "合并资讯",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "采集课程与活动案例": {
+      "main": [
+        [
+          {
+            "node": "合并资讯",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "合并资讯": {
+      "main": [
+        [
+          {
+            "node": "去重分类与选题初筛",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
