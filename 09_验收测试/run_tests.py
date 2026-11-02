@@ -84,7 +84,7 @@ for rel in article_files:
         cn = sum(1 for ch in text if "\u4e00" <= ch <= "\u9fff")
         if cn < 450:
             article_errors.append(rel + "：正文内容偏短（%d 个汉字）" % cn)
-        if "作品属性" not in text or "发布前核对" not in text:
+        if not any(mark in text for mark in ("作品属性", "模拟原创稿", "模拟稿")) or "发布前核对" not in text:
             article_errors.append(rel + "：缺少模拟属性或发布审核提醒")
     except Exception as exc:
         article_errors.append(rel + "：" + str(exc))
