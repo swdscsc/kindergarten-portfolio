@@ -77,7 +77,7 @@ demo_source = ROOT / "04_园务信息台/app.py"
 demo_errors = []
 if demo_source.is_file():
     source = demo_source.read_text(encoding="utf-8")
-    for token in ("Flask(", "sqlite3", "def assets(", "def inspections(", "def tickets(", "def media(", "@app.get(\\"/health\\")"):
+    for token in ("Flask(", "sqlite3", "def assets(", "def inspections(", "def tickets(", "def media(", "def audit(", "def data_tools(", "def export_csv(", "def backup_db(", "audit_logs", "WHERE asset_code LIKE", "@app.get(\\"/health\\")"):
         if token not in source:
             demo_errors.append("app.py 缺少关键实现：" + token)
 add("园务信息台源码结构", not demo_errors, "；".join(demo_errors) if demo_errors else "Flask、SQLite、四个业务模块及健康检查路由均存在")
